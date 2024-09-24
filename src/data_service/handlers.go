@@ -49,17 +49,24 @@ func (service *DataService) launchNodeAdaptorHandler(w http.ResponseWriter, r *h
 	// Wait for response (with timeout) from ArbCalculator
 	timeout_timer := time.NewTimer(5 * time.Second)
 	defer timeout_timer.Stop()
-	responseReceived := false
+	isResponseReceived := false
+	var response *models.DataServiceResponse
 
-	for !responseReceived {
+	for !isResponseReceived {
 		select {
-		case response := <-service.dataServiceResponseChannel:
-			responseReceived = response.RequestId == request.RequestId
+		case response = <-service.dataServiceResponseChannel:
+			isResponseReceived = response.RequestId == request.RequestId
 		case <-timeout_timer.C:
 			http.Error(w, "Request timeout", http.StatusBadRequest)
 			fmt.Printf("launchNodeAdaptorHandler error: timed out after sending request to ArbCalculator")
 			return
 		}
+	}
+
+	if response.Code != 200 {
+		http.Error(w, "Failed to launch node adaptor: "+response.Message, http.StatusBadRequest)
+		fmt.Printf("launchNodeAdaptorHandler error: %+v", response)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

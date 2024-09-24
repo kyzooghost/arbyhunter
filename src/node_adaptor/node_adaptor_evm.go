@@ -17,7 +17,12 @@ func NewNodeAdaptorEVM(rawurl string) *NodeAdaptorEVM {
 		return nil
 	}
 
+	fmt.Println("NewNodeAdaptorEVM success")
 	return &NodeAdaptorEVM{
 		blockchain_client: client,
 	}
+}
+
+func (service *NodeAdaptorEVM) AddPool() {
+	println("AddPool")
 }

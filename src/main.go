@@ -26,7 +26,7 @@ func main() {
 	dataServiceResponseChannel := make(chan *models.DataServiceResponse)
 
 	data_service_instance := data_service.NewDataService(dataServiceRequestChannel, dataServiceResponseChannel)
-	go arb_calculator.InitArbCalculator(dataServiceRequestChannel, dataServiceResponseChannel)
+	arb_calculator.NewArbCalculator(dataServiceRequestChannel, dataServiceResponseChannel)
 
 	// Cleanup
 	stop := make(chan os.Signal, 1)

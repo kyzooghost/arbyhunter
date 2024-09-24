@@ -1,24 +1,51 @@
 package arb_calculator
 
 import (
+	dtos "arbyhunter/src/types/dtos"
+	enums "arbyhunter/src/types/enums"
+	interfaces "arbyhunter/src/types/interfaces"
 	models "arbyhunter/src/types/models"
 
 	"fmt"
 	"time"
 )
 
-func InitArbCalculator(dataServiceRequestChannel chan *models.DataServiceRequest, dataServiceResponseChannel chan *models.DataServiceResponse) {
-	fmt.Println("InitArbCalculator")
+type ArbCalculator struct {
+	dataServiceRequestChannel  chan *models.DataServiceRequest
+	dataServiceResponseChannel chan *models.DataServiceResponse
+	nodeAdaptors               map[enums.NodeAdaptorType]interfaces.INodeAdaptor
+}
 
-	for {
-		select {
-		case request := <-dataServiceRequestChannel:
-			time.Sleep(1 * time.Second)
-			resp := models.DataServiceResponse{
-				RequestId: request.RequestId,
-				Data:      nil,
-			}
-			dataServiceResponseChannel <- &resp
-		}
+func NewArbCalculator(dataServiceRequestChannel chan *models.DataServiceRequest, dataServiceResponseChannel chan *models.DataServiceResponse) *ArbCalculator {
+	fmt.Println("NewArbCalculator")
+	calculator := ArbCalculator{
+		dataServiceRequestChannel:  dataServiceRequestChannel,
+		dataServiceResponseChannel: dataServiceResponseChannel,
+		nodeAdaptors:               make(map[enums.NodeAdaptorType]interfaces.INodeAdaptor),
 	}
+
+	go func() {
+		for {
+			select {
+			case request := <-dataServiceRequestChannel:
+				var resp models.DataServiceResponse
+
+				switch dto := request.Dto.(type) {
+				default:
+					resp.Code = 400
+					resp.Message = "Unexpected DTO type"
+					resp.Data = nil
+					fmt.Printf("unexpected DTO type %T", dto)
+				case dtos.LaunchNodeAdaptorDTO:
+					resp = calculator.launchNodeAdaptorHandler(dto)
+				}
+
+				time.Sleep(1 * time.Second)
+				resp.RequestId = request.RequestId
+				dataServiceResponseChannel <- &resp
+			}
+		}
+	}()
+
+	return &calculator
 }
