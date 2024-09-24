@@ -8,7 +8,10 @@ import (
 
 	"fmt"
 	"log"
-	"time"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 )
 
 func main() {
@@ -19,19 +22,27 @@ func main() {
 
 	fmt.Println("Hello, Go!")
 	apiCall_to_arbCalculator_channel := make(chan interface{})
-	go data_service.InitDataService(apiCall_to_arbCalculator_channel)
+
+	data_service_instance := data_service.NewDataService()
 	go arb_calculator.InitArbCalculator(apiCall_to_arbCalculator_channel)
 
-	// Infinite loop
-	// for {
-	// Throttle for loop to lower CPU usage
-	// }
-	for {
-		time.Sleep(100)
+	// Cleanup
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
-		// select {
-		// case msg := <-dataService_to_arbCalculator_channel:
-		// 	fmt.Println(msg)
-		// }
+	for {
+		select {
+		case <-stop:
+			fmt.Println("Cleaning up arbyhunter")
+			var wg sync.WaitGroup
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				data_service.CleanUpDataService(data_service_instance)
+			}()
+			wg.Wait()
+			fmt.Println("Shutting down arbyhunter")
+			return
+		}
 	}
 }

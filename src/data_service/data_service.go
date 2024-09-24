@@ -1,39 +1,28 @@
 package data_service
 
 import (
-	// "context"
+	"context"
 	"fmt"
 	"net/http"
 	"os"
-	// "os/signal"
-	"sync"
-	// "syscall"
-	// "time"
+	"time"
 )
 
-func InitDataService(apiCall_to_arbCalculator_channel chan interface{}) {
-	fmt.Println("InitDataService")
-	startAPIServer()
+type DataService struct {
+	server *http.Server
 }
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World!")
-}
-
-func startAPIServer() {
+func NewDataService() *DataService {
 	// Start the server on port 8080
 	port := os.Getenv("API_SERVER_PORT")
-	fmt.Println("Starting API server on port", port)
 
 	server := &http.Server{
 		Addr:    ":" + port,
-		Handler: http.HandlerFunc(helloHandler),
+		Handler: http.HandlerFunc(handler),
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
+		fmt.Println("Starting API server on port", port)
 		// ListenAndServe is blocking
 		err := server.ListenAndServe()
 		if err != nil {
@@ -41,20 +30,20 @@ func startAPIServer() {
 		}
 	}()
 
-	// Cleanup
-	// stop := make(chan os.Signal, 1)
-	// signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
-	// <-stop
-	// fmt.Println("Shutting down API server")
+	return &DataService{
+		server: server,
+	}
+}
 
-	// // Create a context with a timeout for graceful shutdown
-	// ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	// // defer cancel()
-	// // // Shutdown the server gracefully
-	// if err := server.Shutdown(ctx); err != nil {
-	// 	fmt.Printf("Server Shutdown Failed:%+v", err)
-	// }
-	// wg.Wait()
-	// fmt.Println("Server exited properly")
-	// cancel()
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, World!")
+}
+
+func CleanUpDataService(service *DataService) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	if err := service.server.Shutdown(ctx); err != nil {
+		fmt.Printf("API server Shutdown Failed:%+v", err)
+	}
+	fmt.Println("API server exited properly")
 }
