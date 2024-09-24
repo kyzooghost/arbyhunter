@@ -5,6 +5,6 @@ import (
 )
 
 type LaunchNodeAdaptorDTO struct {
-	rawurl          string
-	nodeAdaptorType types.NodeAdaptorType
+	Rawurl          string                `json:"raw_url"`
+	NodeAdaptorType types.NodeAdaptorType `json:"node_adaptor_type"`
 }

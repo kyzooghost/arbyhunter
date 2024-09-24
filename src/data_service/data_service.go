@@ -2,6 +2,7 @@ package data_service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -16,16 +17,21 @@ func NewDataService() *DataService {
 	// Start the server on port 8080
 	port := os.Getenv("API_SERVER_PORT")
 
+	mux := http.NewServeMux()
+	mux.HandleFunc("/launchNodeAdaptor", launchNodeAdaptorHandler)
+
 	server := &http.Server{
 		Addr:    ":" + port,
-		Handler: http.HandlerFunc(handler),
+		Handler: mux,
 	}
 
 	go func() {
 		fmt.Println("Starting API server on port", port)
 		// ListenAndServe is blocking
 		err := server.ListenAndServe()
-		if err != nil {
+		if errors.Is(err, http.ErrServerClosed) {
+			fmt.Println("API server closed")
+		} else if err != nil {
 			fmt.Println("Error starting API server:", err)
 		}
 	}()
@@ -33,10 +39,6 @@ func NewDataService() *DataService {
 	return &DataService{
 		server: server,
 	}
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World!")
 }
 
 func CleanUpDataService(service *DataService) {
