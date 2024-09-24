@@ -5,6 +5,7 @@ import (
 
 	"arbyhunter/src/arb_calculator"
 	"arbyhunter/src/data_service"
+	models "arbyhunter/src/types/models"
 
 	"fmt"
 	"log"
@@ -21,10 +22,11 @@ func main() {
 	}
 
 	fmt.Println("Hello, Go!")
-	apiCall_to_arbCalculator_channel := make(chan interface{})
+	dataServiceRequestChannel := make(chan *models.DataServiceRequest)
+	dataServiceResponseChannel := make(chan *models.DataServiceResponse)
 
-	data_service_instance := data_service.NewDataService()
-	go arb_calculator.InitArbCalculator(apiCall_to_arbCalculator_channel)
+	data_service_instance := data_service.NewDataService(dataServiceRequestChannel, dataServiceResponseChannel)
+	go arb_calculator.InitArbCalculator(dataServiceRequestChannel, dataServiceResponseChannel)
 
 	// Cleanup
 	stop := make(chan os.Signal, 1)

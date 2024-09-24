@@ -1,6 +1,8 @@
 package data_service
 
 import (
+	models "arbyhunter/src/types/models"
+
 	"context"
 	"errors"
 	"fmt"
@@ -10,20 +12,28 @@ import (
 )
 
 type DataService struct {
-	server *http.Server
+	server                     *http.Server
+	dataServiceRequestChannel  chan *models.DataServiceRequest
+	dataServiceResponseChannel chan *models.DataServiceResponse
 }
 
-func NewDataService() *DataService {
+func NewDataService(dataServiceRequestChannel chan *models.DataServiceRequest, dataServiceResponseChannel chan *models.DataServiceResponse) *DataService {
 	// Start the server on port 8080
 	port := os.Getenv("API_SERVER_PORT")
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/launchNodeAdaptor", launchNodeAdaptorHandler)
-
 	server := &http.Server{
-		Addr:    ":" + port,
-		Handler: mux,
+		Addr: ":" + port,
 	}
+
+	service := &DataService{
+		server:                     server,
+		dataServiceRequestChannel:  dataServiceRequestChannel,
+		dataServiceResponseChannel: dataServiceResponseChannel,
+	}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/launchNodeAdaptor", service.launchNodeAdaptorHandler)
+	service.server.Handler = mux
 
 	go func() {
 		fmt.Println("Starting API server on port", port)
@@ -36,9 +46,7 @@ func NewDataService() *DataService {
 		}
 	}()
 
-	return &DataService{
-		server: server,
-	}
+	return service
 }
 
 func CleanUpDataService(service *DataService) {
