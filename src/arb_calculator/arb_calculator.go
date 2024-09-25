@@ -7,7 +7,6 @@ import (
 	models "arbyhunter/src/types/models"
 
 	"fmt"
-	"time"
 )
 
 type ArbCalculator struct {
@@ -38,9 +37,10 @@ func NewArbCalculator(dataServiceRequestChannel chan *models.DataServiceRequest,
 					fmt.Printf("unexpected DTO type %T", dto)
 				case dtos.LaunchNodeAdaptorDTO:
 					resp = calculator.launchNodeAdaptorHandler(dto)
+				case dtos.AddPoolDTO:
+					resp = calculator.addPoolHandler(dto)
 				}
 
-				time.Sleep(1 * time.Second)
 				resp.RequestId = request.RequestId
 				dataServiceResponseChannel <- &resp
 			}

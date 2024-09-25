@@ -6,5 +6,5 @@ type NodeAdaptorType int
 const (
 	EVM NodeAdaptorType = iota
 	SOLANA
-	MAX_NodeAdaptorType_VAL
+	MAX_VAL_NodeAdaptorType
 )

@@ -31,3 +31,23 @@ func (service *ArbCalculator) launchNodeAdaptorHandler(dto dtos.LaunchNodeAdapto
 		Data:    nil,
 	}
 }
+
+func (service *ArbCalculator) addPoolHandler(dto dtos.AddPoolDTO) models.DataServiceResponse {
+	nodeAdaptor, exists := service.nodeAdaptors[dto.NodeAdaptorType]
+	if !exists {
+		return models.DataServiceResponse{
+			Code:    400,
+			Message: fmt.Sprintf("NodeAdaptor type %d not yet launched", dto.NodeAdaptorType),
+			Data:    nil,
+		}
+	}
+
+	// TODO Check for success/failure resp
+	nodeAdaptor.AddPool(dto)
+
+	return models.DataServiceResponse{
+		Code:    200,
+		Message: "",
+		Data:    nil,
+	}
+}

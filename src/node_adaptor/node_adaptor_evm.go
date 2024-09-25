@@ -1,8 +1,11 @@
 package node_adaptor
 
 import (
-	"fmt"
+	dtos "arbyhunter/src/types/dtos"
+
 	"github.com/ethereum/go-ethereum/ethclient"
+
+	"fmt"
 )
 
 type NodeAdaptorEVM struct {
@@ -23,6 +26,6 @@ func NewNodeAdaptorEVM(rawurl string) *NodeAdaptorEVM {
 	}
 }
 
-func (service *NodeAdaptorEVM) AddPool() {
+func (service *NodeAdaptorEVM) AddPool(dto dtos.AddPoolDTO) {
 	println("AddPool")
 }

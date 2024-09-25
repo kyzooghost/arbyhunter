@@ -33,6 +33,7 @@ func NewDataService(dataServiceRequestChannel chan *models.DataServiceRequest, d
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/launchNodeAdaptor", service.launchNodeAdaptorHandler)
+	mux.HandleFunc("/addPool", service.addPoolHandler)
 	service.server.Handler = mux
 
 	go func() {
