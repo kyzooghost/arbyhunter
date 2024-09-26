@@ -6,25 +6,38 @@ import (
 	enums "arbyhunter/src/types/enums"
 	models "arbyhunter/src/types/models"
 
+	"context"
 	"fmt"
 )
 
-func (service *ArbCalculator) LaunchNodeAdaptor(dto dtos.LaunchNodeAdaptorDTO) models.DataServiceResponse {
+func (service *ArbCalculator) LaunchNodeAdaptor(ctx context.Context, dto dtos.LaunchNodeAdaptorDTO) models.DataServiceResponse {
+	fmt.Printf("LaunchNodeAdaptor started\n")
 	switch nodeAdaptorType := dto.NodeAdaptorType; nodeAdaptorType {
 	case enums.EVM:
-		node_adaptor := node_adaptor.NewNodeAdaptorEVM(dto.Rawurl)
-		if node_adaptor == nil {
+
+		// Timeout protection
+		adaptor, err := node_adaptor.NewNodeAdaptorEVM(ctx, dto.Rawurl)
+		if err != nil {
+			return models.DataServiceResponse{
+				Code:    400,
+				Message: err.Error(),
+				Data:    nil,
+			}
+		}
+		if adaptor == nil {
 			return models.DataServiceResponse{
 				Code:    400,
 				Message: "NewNodeAdaptorEVM failed",
 				Data:    nil,
 			}
 		}
-		service.nodeAdaptors[enums.EVM] = node_adaptor
+		service.nodeAdaptors[enums.EVM] = adaptor
+
 	case enums.SOLANA:
-		fmt.Printf("launchNodeAdaptorSolana")
+		fmt.Printf("launchNodeAdaptorSolana\n")
 	}
 
+	fmt.Printf("LaunchNodeAdaptor succeeded\n")
 	return models.DataServiceResponse{
 		Code:    200,
 		Message: "",
@@ -32,7 +45,8 @@ func (service *ArbCalculator) LaunchNodeAdaptor(dto dtos.LaunchNodeAdaptorDTO) m
 	}
 }
 
-func (service *ArbCalculator) AddPool(dto dtos.AddPoolDTO) models.DataServiceResponse {
+func (service *ArbCalculator) AddPool(ctx context.Context, dto dtos.AddPoolDTO) models.DataServiceResponse {
+	fmt.Printf("AddPool started\n")
 	nodeAdaptor, exists := service.nodeAdaptors[dto.NodeAdaptorType]
 	if !exists {
 		return models.DataServiceResponse{
@@ -45,6 +59,7 @@ func (service *ArbCalculator) AddPool(dto dtos.AddPoolDTO) models.DataServiceRes
 	// TODO Check for success/failure resp
 	nodeAdaptor.AddPool(dto)
 
+	fmt.Printf("AddPool succeeded\n")
 	return models.DataServiceResponse{
 		Code:    200,
 		Message: "",

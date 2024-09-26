@@ -52,7 +52,7 @@ func CleanUpDataService(service *DataService) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if err := service.server.Shutdown(ctx); err != nil {
-		fmt.Printf("API server Shutdown Failed:%+v", err)
+		fmt.Printf("API server Shutdown Failed:%+v\n", err)
 	}
-	fmt.Println("API server exited properly")
+	fmt.Println("API server exited properly\n")
 }

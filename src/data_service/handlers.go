@@ -4,16 +4,18 @@ import (
 	dtos "arbyhunter/src/types/dtos"
 	enums "arbyhunter/src/types/enums"
 
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 func (service *DataService) launchNodeAdaptorHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusBadRequest)
-		fmt.Printf("launchNodeAdaptorHandler error: Invalid request method")
+		fmt.Printf("launchNodeAdaptorHandler error: Invalid request method\n")
 		return
 	}
 
@@ -28,31 +30,28 @@ func (service *DataService) launchNodeAdaptorHandler(w http.ResponseWriter, r *h
 	err = json.Unmarshal(body, &dto)
 	if err != nil {
 		http.Error(w, "invalid request", http.StatusBadRequest)
-		fmt.Printf("launchNodeAdaptorHandler error: could not unmarshal body: %s \nerror: %s", body, err)
+		fmt.Printf("launchNodeAdaptorHandler error: could not unmarshal body: %s \nerror: %s\n", body, err)
 		return
 	}
 
-	fmt.Printf("launchNodeAdaptorHandler request: %+v", dto)
+	fmt.Printf("launchNodeAdaptorHandler request: %+v\n", dto)
 
 	// Input validation
 	if dto.NodeAdaptorType < 0 || dto.NodeAdaptorType >= enums.MAX_VAL_NodeAdaptorType {
 		http.Error(w, "invalid node_adaptor_type", http.StatusBadRequest)
-		fmt.Printf("launchNodeAdaptorHandler error: invalid node_adaptor_type")
+		fmt.Printf("launchNodeAdaptorHandler error: invalid node_adaptor_type\n")
 		return
 	}
 
 	// Send validated request to ArbCalculator
 
-	response := service.arbCalculator.LaunchNodeAdaptor(dto)
-
-	// Wait for response (with timeout) from ArbCalculator
-	// TODO - timeout
-	// timeout_timer := time.NewTimer(5 * time.Second)
-	// defer timeout_timer.Stop()
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	response := service.arbCalculator.LaunchNodeAdaptor(ctx, dto)
 
 	if response.Code != 200 {
 		http.Error(w, "Failed to launch node adaptor: "+response.Message, http.StatusBadRequest)
-		fmt.Printf("launchNodeAdaptorHandler error: %+v", response)
+		fmt.Printf("launchNodeAdaptorHandler error: %+v\n", response)
 		return
 	}
 
@@ -63,7 +62,7 @@ func (service *DataService) launchNodeAdaptorHandler(w http.ResponseWriter, r *h
 func (service *DataService) addPoolHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusBadRequest)
-		fmt.Printf("addPoolHandler error: Invalid request method")
+		fmt.Printf("addPoolHandler error: Invalid request method\n")
 		return
 	}
 
@@ -78,37 +77,34 @@ func (service *DataService) addPoolHandler(w http.ResponseWriter, r *http.Reques
 	err = json.Unmarshal(body, &dto)
 	if err != nil {
 		http.Error(w, "invalid request", http.StatusBadRequest)
-		fmt.Printf("addPoolHandler error: could not unmarshal body: %s \nerror: %s", body, err)
+		fmt.Printf("addPoolHandler error: could not unmarshal body: %s \nerror: %s\n", body, err)
 		return
 	}
 
-	fmt.Printf("addPoolHandler request: %+v", dto)
+	fmt.Printf("addPoolHandler request: %+v\n", dto)
 
 	// Input validation
 	if dto.NodeAdaptorType < 0 || dto.NodeAdaptorType >= enums.MAX_VAL_NodeAdaptorType {
 		http.Error(w, "invalid node_adaptor_type", http.StatusBadRequest)
-		fmt.Printf("addPoolHandler error: invalid node_adaptor_type")
+		fmt.Printf("addPoolHandler error: invalid node_adaptor_type\n")
 		return
 	}
 
 	if dto.ProtocolAdaptorType < 0 || dto.ProtocolAdaptorType >= enums.MAX_VAL_ProtocolAdaptorType {
 		http.Error(w, "invalid protocol_adaptor_type", http.StatusBadRequest)
-		fmt.Printf("addPoolHandler error: invalid protocol_adaptor_type")
+		fmt.Printf("addPoolHandler error: invalid protocol_adaptor_type\n")
 		return
 	}
 
 	// TODO - Validate addresses in ProtocolAdaptor
 
-	response := service.arbCalculator.AddPool(dto)
-
-	// TODO do timeout
-	// Wait for response (with timeout) from ArbCalculator
-	// timeout_timer := time.NewTimer(5 * time.Second)
-	// defer timeout_timer.Stop()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	response := service.arbCalculator.AddPool(ctx, dto)
 
 	if response.Code != 200 {
 		http.Error(w, "Failed to add pool: "+response.Message, http.StatusBadRequest)
-		fmt.Printf("addPoolHandler error: %+v", response)
+		fmt.Printf("addPoolHandler error: %+v\n", response)
 		return
 	}
 
