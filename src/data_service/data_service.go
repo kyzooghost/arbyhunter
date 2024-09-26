@@ -1,7 +1,7 @@
 package data_service
 
 import (
-	models "arbyhunter/src/types/models"
+	"arbyhunter/src/arb_calculator"
 
 	"context"
 	"errors"
@@ -12,12 +12,11 @@ import (
 )
 
 type DataService struct {
-	server                     *http.Server
-	dataServiceRequestChannel  chan *models.DataServiceRequest
-	dataServiceResponseChannel chan *models.DataServiceResponse
+	server        *http.Server
+	arbCalculator *arb_calculator.ArbCalculator
 }
 
-func NewDataService(dataServiceRequestChannel chan *models.DataServiceRequest, dataServiceResponseChannel chan *models.DataServiceResponse) *DataService {
+func NewDataService(arb_calculator *arb_calculator.ArbCalculator) *DataService {
 	// Start the server on port 8080
 	port := os.Getenv("API_SERVER_PORT")
 
@@ -26,9 +25,8 @@ func NewDataService(dataServiceRequestChannel chan *models.DataServiceRequest, d
 	}
 
 	service := &DataService{
-		server:                     server,
-		dataServiceRequestChannel:  dataServiceRequestChannel,
-		dataServiceResponseChannel: dataServiceResponseChannel,
+		server:        server,
+		arbCalculator: arb_calculator,
 	}
 
 	mux := http.NewServeMux()

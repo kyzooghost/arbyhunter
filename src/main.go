@@ -5,7 +5,6 @@ import (
 
 	"arbyhunter/src/arb_calculator"
 	"arbyhunter/src/data_service"
-	models "arbyhunter/src/types/models"
 
 	"fmt"
 	"log"
@@ -21,12 +20,8 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	fmt.Println("Hello, Go!")
-	dataServiceRequestChannel := make(chan *models.DataServiceRequest)
-	dataServiceResponseChannel := make(chan *models.DataServiceResponse)
-
-	data_service_instance := data_service.NewDataService(dataServiceRequestChannel, dataServiceResponseChannel)
-	arb_calculator.NewArbCalculator(dataServiceRequestChannel, dataServiceResponseChannel)
+	arb_calculator_instance := arb_calculator.NewArbCalculator()
+	data_service_instance := data_service.NewDataService(arb_calculator_instance)
 
 	// Cleanup
 	stop := make(chan os.Signal, 1)

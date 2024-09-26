@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-func (service *ArbCalculator) launchNodeAdaptorHandler(dto dtos.LaunchNodeAdaptorDTO) models.DataServiceResponse {
+func (service *ArbCalculator) LaunchNodeAdaptor(dto dtos.LaunchNodeAdaptorDTO) models.DataServiceResponse {
 	switch nodeAdaptorType := dto.NodeAdaptorType; nodeAdaptorType {
 	case enums.EVM:
 		node_adaptor := node_adaptor.NewNodeAdaptorEVM(dto.Rawurl)
@@ -32,7 +32,7 @@ func (service *ArbCalculator) launchNodeAdaptorHandler(dto dtos.LaunchNodeAdapto
 	}
 }
 
-func (service *ArbCalculator) addPoolHandler(dto dtos.AddPoolDTO) models.DataServiceResponse {
+func (service *ArbCalculator) AddPool(dto dtos.AddPoolDTO) models.DataServiceResponse {
 	nodeAdaptor, exists := service.nodeAdaptors[dto.NodeAdaptorType]
 	if !exists {
 		return models.DataServiceResponse{

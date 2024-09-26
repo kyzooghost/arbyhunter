@@ -3,15 +3,11 @@ package data_service
 import (
 	dtos "arbyhunter/src/types/dtos"
 	enums "arbyhunter/src/types/enums"
-	models "arbyhunter/src/types/models"
-
-	"github.com/google/uuid"
 
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 )
 
 func (service *DataService) launchNodeAdaptorHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,29 +42,13 @@ func (service *DataService) launchNodeAdaptorHandler(w http.ResponseWriter, r *h
 	}
 
 	// Send validated request to ArbCalculator
-	request := models.DataServiceRequest{
-		RequestId: uuid.New().String(),
-		Dto:       dto,
-	}
 
-	service.dataServiceRequestChannel <- &request
+	response := service.arbCalculator.LaunchNodeAdaptor(dto)
 
 	// Wait for response (with timeout) from ArbCalculator
-	timeout_timer := time.NewTimer(5 * time.Second)
-	defer timeout_timer.Stop()
-	isResponseReceived := false
-	var response *models.DataServiceResponse
-
-	for !isResponseReceived {
-		select {
-		case response = <-service.dataServiceResponseChannel:
-			isResponseReceived = response.RequestId == request.RequestId
-		case <-timeout_timer.C:
-			http.Error(w, "Request timeout", http.StatusBadRequest)
-			fmt.Printf("launchNodeAdaptorHandler error: timed out after sending request to ArbCalculator")
-			return
-		}
-	}
+	// TODO - timeout
+	// timeout_timer := time.NewTimer(5 * time.Second)
+	// defer timeout_timer.Stop()
 
 	if response.Code != 200 {
 		http.Error(w, "Failed to launch node adaptor: "+response.Message, http.StatusBadRequest)
@@ -117,32 +97,14 @@ func (service *DataService) addPoolHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Validate addresses in ProtocolAdaptor
+	// TODO - Validate addresses in ProtocolAdaptor
 
-	// Send validated request to ArbCalculator
-	request := models.DataServiceRequest{
-		RequestId: uuid.New().String(),
-		Dto:       dto,
-	}
+	response := service.arbCalculator.AddPool(dto)
 
-	service.dataServiceRequestChannel <- &request
-
+	// TODO do timeout
 	// Wait for response (with timeout) from ArbCalculator
-	timeout_timer := time.NewTimer(5 * time.Second)
-	defer timeout_timer.Stop()
-	isResponseReceived := false
-	var response *models.DataServiceResponse
-
-	for !isResponseReceived {
-		select {
-		case response = <-service.dataServiceResponseChannel:
-			isResponseReceived = response.RequestId == request.RequestId
-		case <-timeout_timer.C:
-			http.Error(w, "Request timeout", http.StatusBadRequest)
-			fmt.Printf("addPoolHandler error: timed out after sending request to ArbCalculator")
-			return
-		}
-	}
+	// timeout_timer := time.NewTimer(5 * time.Second)
+	// defer timeout_timer.Stop()
 
 	if response.Code != 200 {
 		http.Error(w, "Failed to add pool: "+response.Message, http.StatusBadRequest)
