@@ -29,13 +29,15 @@ func NewDataService(arb_calculator *arb_calculator.ArbCalculator) *DataService {
 		arbCalculator: arb_calculator,
 	}
 
+	// Routes
 	mux := http.NewServeMux()
 	mux.HandleFunc("/launchNodeAdaptor", service.launchNodeAdaptorHandler)
 	mux.HandleFunc("/addPool", service.addPoolHandler)
+	mux.HandleFunc("/healthCheck", service.healthCheckHandler)
 	service.server.Handler = mux
 
 	go func() {
-		fmt.Println("Starting API server on port", port)
+		fmt.Printf("Starting API server on http://localhost:%s\n", port)
 		// ListenAndServe is blocking
 		err := server.ListenAndServe()
 		if errors.Is(err, http.ErrServerClosed) {
@@ -52,7 +54,7 @@ func CleanUpDataService(service *DataService) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if err := service.server.Shutdown(ctx); err != nil {
-		fmt.Printf("API server Shutdown Failed:%+v\n", err)
+		fmt.Println("API server Shutdown Failed:%+v\n", err)
 	}
-	fmt.Println("API server exited properly\n")
+	fmt.Println("API server exited properly")
 }

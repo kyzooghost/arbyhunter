@@ -111,3 +111,26 @@ func (service *DataService) addPoolHandler(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Added pool successfully"))
 }
+
+func (service *DataService) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusBadRequest)
+		fmt.Printf("healthCheckHandler error: Invalid request method\n")
+		return
+	}
+
+	fmt.Printf("healthCheckHandler request\n")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	response := service.arbCalculator.HealthCheck(ctx)
+
+	if response.Code != 200 {
+		http.Error(w, "Failed health check: "+response.Message, http.StatusBadRequest)
+		fmt.Printf("healthCheckHandler error: %+v\n", response)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(response.Message))
+}

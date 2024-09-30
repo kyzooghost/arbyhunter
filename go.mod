@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/ethereum/go-ethereum v1.14.9
-	github.com/google/uuid v1.3.0
+	github.com/go-zeromq/zmq4 v0.17.0
 	github.com/joho/godotenv v1.5.1
 )
 
@@ -22,6 +22,7 @@ require (
 	github.com/ethereum/c-kzg-4844 v1.0.0 // indirect
 	github.com/ethereum/go-verkle v0.1.1-0.20240829091221-dffa7562dbe9 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
+	github.com/go-zeromq/goczmq/v4 v4.2.2 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/holiman/uint256 v1.3.1 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
@@ -33,5 +34,6 @@ require (
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 )
