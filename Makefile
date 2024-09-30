@@ -1,0 +1,1 @@
+test :; . ./tests/integration/health-check.sh
