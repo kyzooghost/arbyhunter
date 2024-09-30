@@ -1,0 +1,3 @@
+[submodule "graph-engine"]
+	path = graph-engine
+	url = https://github.com/kyzooghost/arbitrage-graph-engine.git
