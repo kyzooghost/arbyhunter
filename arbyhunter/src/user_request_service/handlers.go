@@ -56,7 +56,7 @@ func (service *UserRequestService) launchNodeAdaptorHandler(w http.ResponseWrite
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Launched Node Adaptor successfully"))
+	w.Write([]byte("Launched Node Adaptor successfully\n"))
 }
 
 func (service *UserRequestService) addPoolHandler(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +109,7 @@ func (service *UserRequestService) addPoolHandler(w http.ResponseWriter, r *http
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Added pool successfully"))
+	w.Write([]byte("Added pool successfully\n"))
 }
 
 func (service *UserRequestService) healthCheckHandler(w http.ResponseWriter, r *http.Request) {

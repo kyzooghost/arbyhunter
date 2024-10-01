@@ -113,7 +113,7 @@ func (service *ArbCoordinator) HealthCheck(ctx context.Context) models.UserRespo
 	fmt.Println("HealthCheck succeeded\n")
 	return models.UserResponse{
 		Code:    200,
-		Message: "HealthCheck success",
+		Message: "HealthCheck success\n",
 		Data:    nil,
 	}
 }
