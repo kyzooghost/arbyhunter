@@ -1,6 +1,6 @@
 package types
 
-type DataServiceResponse struct {
+type UserResponse struct {
 	RequestId string
 	Code      int
 	Message   string

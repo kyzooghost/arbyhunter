@@ -1,4 +1,4 @@
-package arb_calculator
+package arb_coordinator
 
 import (
 	enums "arbyhunter/src/types/enums"
@@ -7,15 +7,15 @@ import (
 	"fmt"
 )
 
-type ArbCalculator struct {
+type ArbCoordinator struct {
 	nodeAdaptors map[enums.NodeAdaptorType]interfaces.INodeAdaptor
 }
 
-func NewArbCalculator() *ArbCalculator {
-	fmt.Println("NewArbCalculator")
-	calculator := ArbCalculator{
+func NewArbCoordinator() *ArbCoordinator {
+	fmt.Println("NewArbCoordinator")
+	co := ArbCoordinator{
 		nodeAdaptors: make(map[enums.NodeAdaptorType]interfaces.INodeAdaptor),
 	}
 
-	return &calculator
+	return &co
 }

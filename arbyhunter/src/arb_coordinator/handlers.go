@@ -1,4 +1,4 @@
-package arb_calculator
+package arb_coordinator
 
 import (
 	"arbyhunter/src/node_adaptor"
@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func (service *ArbCalculator) LaunchNodeAdaptor(ctx context.Context, dto dtos.LaunchNodeAdaptorDTO) models.DataServiceResponse {
+func (service *ArbCoordinator) LaunchNodeAdaptor(ctx context.Context, dto dtos.LaunchNodeAdaptorDTO) models.UserResponse {
 	fmt.Printf("LaunchNodeAdaptor started\n")
 	switch nodeAdaptorType := dto.NodeAdaptorType; nodeAdaptorType {
 	case enums.EVM:
@@ -22,14 +22,14 @@ func (service *ArbCalculator) LaunchNodeAdaptor(ctx context.Context, dto dtos.La
 		// Timeout protection
 		adaptor, err := node_adaptor.NewNodeAdaptorEVM(ctx, dto.Rawurl)
 		if err != nil {
-			return models.DataServiceResponse{
+			return models.UserResponse{
 				Code:    400,
 				Message: err.Error(),
 				Data:    nil,
 			}
 		}
 		if adaptor == nil {
-			return models.DataServiceResponse{
+			return models.UserResponse{
 				Code:    400,
 				Message: "NewNodeAdaptorEVM failed",
 				Data:    nil,
@@ -42,18 +42,18 @@ func (service *ArbCalculator) LaunchNodeAdaptor(ctx context.Context, dto dtos.La
 	}
 
 	fmt.Printf("LaunchNodeAdaptor succeeded\n")
-	return models.DataServiceResponse{
+	return models.UserResponse{
 		Code:    200,
 		Message: "",
 		Data:    nil,
 	}
 }
 
-func (service *ArbCalculator) AddPool(ctx context.Context, dto dtos.AddPoolDTO) models.DataServiceResponse {
+func (service *ArbCoordinator) AddPool(ctx context.Context, dto dtos.AddPoolDTO) models.UserResponse {
 	fmt.Printf("AddPool started\n")
 	nodeAdaptor, exists := service.nodeAdaptors[dto.NodeAdaptorType]
 	if !exists {
-		return models.DataServiceResponse{
+		return models.UserResponse{
 			Code:    400,
 			Message: fmt.Sprintf("NodeAdaptor type %d not yet launched", dto.NodeAdaptorType),
 			Data:    nil,
@@ -64,7 +64,7 @@ func (service *ArbCalculator) AddPool(ctx context.Context, dto dtos.AddPoolDTO) 
 	nodeAdaptor.AddPool(dto)
 
 	fmt.Printf("AddPool succeeded\n")
-	return models.DataServiceResponse{
+	return models.UserResponse{
 		Code:    200,
 		Message: "",
 		Data:    nil,
@@ -72,13 +72,13 @@ func (service *ArbCalculator) AddPool(ctx context.Context, dto dtos.AddPoolDTO) 
 }
 
 // Send 'hello' string to the ArbyScanner server
-func (service *ArbCalculator) HealthCheck(ctx context.Context) models.DataServiceResponse {
+func (service *ArbCoordinator) HealthCheck(ctx context.Context) models.UserResponse {
 	fmt.Println("HealthCheck started\n")
 
 	socket, err := service.connectToArbScanner(ctx)
 	if err != nil {
-		fmt.Println("arb_calculator.HealthCheck - failed to connect to ArbScanner server: %w", err)
-		return models.DataServiceResponse{
+		fmt.Println("arb_coordinator.HealthCheck - failed to connect to ArbScanner server: %w", err)
+		return models.UserResponse{
 			Code:    500,
 			Message: err.Error(),
 			Data:    nil,
@@ -90,8 +90,8 @@ func (service *ArbCalculator) HealthCheck(ctx context.Context) models.DataServic
 	msg := zmq.NewMsgString("hello")
 	fmt.Println("Sending message to ArbScanner server: ", msg)
 	if err := (*socket).Send(msg); err != nil {
-		fmt.Println("arb_calculator.HealthCheck - failed send message to ArbScanner server: %w", err)
-		return models.DataServiceResponse{
+		fmt.Println("arb_coordinator.HealthCheck - failed send message to ArbScanner server: %w", err)
+		return models.UserResponse{
 			Code:    500,
 			Message: err.Error(),
 			Data:    nil,
@@ -101,8 +101,8 @@ func (service *ArbCalculator) HealthCheck(ctx context.Context) models.DataServic
 	// Wait for reply.
 	r, err := (*socket).Recv()
 	if err != nil {
-		fmt.Println("arb_calculator.HealthCheck - failed receive message from ArbScanner server: %w", err)
-		return models.DataServiceResponse{
+		fmt.Println("arb_coordinator.HealthCheck - failed receive message from ArbScanner server: %w", err)
+		return models.UserResponse{
 			Code:    500,
 			Message: err.Error(),
 			Data:    nil,
@@ -111,7 +111,7 @@ func (service *ArbCalculator) HealthCheck(ctx context.Context) models.DataServic
 	fmt.Println("received message from ArbScanner server: ", r.String())
 
 	fmt.Println("HealthCheck succeeded\n")
-	return models.DataServiceResponse{
+	return models.UserResponse{
 		Code:    200,
 		Message: "HealthCheck success",
 		Data:    nil,
@@ -119,7 +119,7 @@ func (service *ArbCalculator) HealthCheck(ctx context.Context) models.DataServic
 }
 
 // Return unique Socket instance, rather than reuse single Socket instance as we are advised 'do not use the same socket from multiple threads'
-func (service *ArbCalculator) connectToArbScanner(ctx context.Context) (*zmq.Socket, error) {
+func (service *ArbCoordinator) connectToArbScanner(ctx context.Context) (*zmq.Socket, error) {
 	socket := zmq.NewReq(ctx, zmq.WithDialerRetry(time.Second))
 	ipcEndpoint := os.Getenv("ARB_SCANNER_IPC_ENDPOINT")
 	fmt.Printf("Connecting to ArbScanner server at %s\n", ipcEndpoint)

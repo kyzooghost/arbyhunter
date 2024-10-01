@@ -1,7 +1,7 @@
-package data_service
+package user_request_service
 
 import (
-	"arbyhunter/src/arb_calculator"
+	interfaces "arbyhunter/src/types/interfaces"
 
 	"context"
 	"errors"
@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-type DataService struct {
-	server        *http.Server
-	arbCalculator *arb_calculator.ArbCalculator
+type UserRequestService struct {
+	server         *http.Server
+	arbCoordinator interfaces.IArbCoordinator
 }
 
-func NewDataService(arb_calculator *arb_calculator.ArbCalculator) *DataService {
+func NewUserRequestService(arb_coordinator interfaces.IArbCoordinator) *UserRequestService {
 	// Start the server on port 8080
 	port := os.Getenv("API_SERVER_PORT")
 
@@ -24,9 +24,9 @@ func NewDataService(arb_calculator *arb_calculator.ArbCalculator) *DataService {
 		Addr: ":" + port,
 	}
 
-	service := &DataService{
-		server:        server,
-		arbCalculator: arb_calculator,
+	service := &UserRequestService{
+		server:         server,
+		arbCoordinator: arb_coordinator,
 	}
 
 	// Routes
@@ -50,7 +50,7 @@ func NewDataService(arb_calculator *arb_calculator.ArbCalculator) *DataService {
 	return service
 }
 
-func CleanUpDataService(service *DataService) {
+func CleanUpUserRequestService(service *UserRequestService) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if err := service.server.Shutdown(ctx); err != nil {

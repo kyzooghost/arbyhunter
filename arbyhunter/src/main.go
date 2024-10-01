@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/joho/godotenv"
 
-	"arbyhunter/src/arb_calculator"
-	"arbyhunter/src/data_service"
+	"arbyhunter/src/arb_coordinator"
+	"arbyhunter/src/user_request_service"
 
 	"fmt"
 	"log"
@@ -20,8 +20,8 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	arb_calculator_instance := arb_calculator.NewArbCalculator()
-	data_service_instance := data_service.NewDataService(arb_calculator_instance)
+	arb_coordinator_instance := arb_coordinator.NewArbCoordinator()
+	user_request_service_instance := user_request_service.NewUserRequestService(arb_coordinator_instance)
 
 	// Cleanup
 	stop := make(chan os.Signal, 1)
@@ -35,7 +35,7 @@ func main() {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				data_service.CleanUpDataService(data_service_instance)
+				user_request_service.CleanUpUserRequestService(user_request_service_instance)
 			}()
 			wg.Wait()
 			fmt.Println("Shutting down arbyhunter")

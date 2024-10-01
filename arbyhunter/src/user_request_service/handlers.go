@@ -1,4 +1,4 @@
-package data_service
+package user_request_service
 
 import (
 	dtos "arbyhunter/src/types/dtos"
@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func (service *DataService) launchNodeAdaptorHandler(w http.ResponseWriter, r *http.Request) {
+func (service *UserRequestService) launchNodeAdaptorHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusBadRequest)
 		fmt.Printf("launchNodeAdaptorHandler error: Invalid request method\n")
@@ -43,11 +43,11 @@ func (service *DataService) launchNodeAdaptorHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	// Send validated request to ArbCalculator
+	// Send validated request to ArbCoordinator
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	response := service.arbCalculator.LaunchNodeAdaptor(ctx, dto)
+	response := service.arbCoordinator.LaunchNodeAdaptor(ctx, dto)
 
 	if response.Code != 200 {
 		http.Error(w, "Failed to launch node adaptor: "+response.Message, http.StatusBadRequest)
@@ -59,7 +59,7 @@ func (service *DataService) launchNodeAdaptorHandler(w http.ResponseWriter, r *h
 	w.Write([]byte("Launched Node Adaptor successfully"))
 }
 
-func (service *DataService) addPoolHandler(w http.ResponseWriter, r *http.Request) {
+func (service *UserRequestService) addPoolHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusBadRequest)
 		fmt.Printf("addPoolHandler error: Invalid request method\n")
@@ -100,7 +100,7 @@ func (service *DataService) addPoolHandler(w http.ResponseWriter, r *http.Reques
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	response := service.arbCalculator.AddPool(ctx, dto)
+	response := service.arbCoordinator.AddPool(ctx, dto)
 
 	if response.Code != 200 {
 		http.Error(w, "Failed to add pool: "+response.Message, http.StatusBadRequest)
@@ -112,7 +112,7 @@ func (service *DataService) addPoolHandler(w http.ResponseWriter, r *http.Reques
 	w.Write([]byte("Added pool successfully"))
 }
 
-func (service *DataService) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+func (service *UserRequestService) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid request method", http.StatusBadRequest)
 		fmt.Printf("healthCheckHandler error: Invalid request method\n")
@@ -123,7 +123,7 @@ func (service *DataService) healthCheckHandler(w http.ResponseWriter, r *http.Re
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	response := service.arbCalculator.HealthCheck(ctx)
+	response := service.arbCoordinator.HealthCheck(ctx)
 
 	if response.Code != 200 {
 		http.Error(w, "Failed health check: "+response.Message, http.StatusBadRequest)
