@@ -7,11 +7,14 @@ set -euo pipefail
 source ./tests/integration/utils.sh
 
 function make_request() {
+    echo $ETH_RPC_URL
     echo "Waiting 3 seconds"
     sleep 3
 
-    echo "Send healthcheck request"
-    curl http://localhost:8080/healthCheck
+    echo "Send launchNodeAdaptor request"
+    curl -X POST http://localhost:8080/launchNodeAdaptor \
+        -d '{"raw_url": "$ETH_RPC_URL", "node_adaptor_type": 0}' \
+        -H "Content-Type: application/json"
 
     echo "Waiting 2 seconds"
     sleep 2

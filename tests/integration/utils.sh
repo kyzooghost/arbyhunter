@@ -6,6 +6,7 @@ set -euo pipefail
 PID1=0
 PID2=0
 PROCESS_GROUP_ID=0
+source .env
 
 function start_go_server() {
     echo "Starting Golang server"
