@@ -7,17 +7,24 @@ set -euo pipefail
 source ./tests/integration/utils.sh
 
 function make_request() {
-    echo $ETH_RPC_URL
     echo "Waiting 3 seconds"
     sleep 3
 
     echo "Send launchNodeAdaptor request"
     curl -X POST http://localhost:8080/launchNodeAdaptor \
-        -d '{"raw_url": "$ETH_RPC_URL", "node_adaptor_type": 0}' \
+        -d "{\"raw_url\": \"${ETH_RPC_URL}\", \"node_adaptor_type\": 0}" \
         -H "Content-Type: application/json"
 
-    echo "Waiting 2 seconds"
-    sleep 2
+    echo "Waiting 1 seconds"
+    sleep 1
+
+    echo "Send addPool request"
+    curl -X POST http://localhost:8080/addPool \
+        # -d "{\"raw_url\": \"${ETH_RPC_URL}\", \"node_adaptor_type\": 0}" \
+        # -H "Content-Type: application/json"
+
+    echo "Waiting 1 seconds"
+    sleep 1
 }
 
 main() {
