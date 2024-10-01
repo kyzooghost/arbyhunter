@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func (service *UserRequestService) launchNodeAdaptorHandler(w http.ResponseWriter, r *http.Request) {
+func (service UserRequestService) launchNodeAdaptorHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusBadRequest)
 		fmt.Printf("launchNodeAdaptorHandler error: Invalid request method\n")
@@ -59,7 +59,7 @@ func (service *UserRequestService) launchNodeAdaptorHandler(w http.ResponseWrite
 	w.Write([]byte("Launched Node Adaptor successfully\n"))
 }
 
-func (service *UserRequestService) addPoolHandler(w http.ResponseWriter, r *http.Request) {
+func (service UserRequestService) addPoolHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusBadRequest)
 		fmt.Printf("addPoolHandler error: Invalid request method\n")
@@ -112,7 +112,7 @@ func (service *UserRequestService) addPoolHandler(w http.ResponseWriter, r *http
 	w.Write([]byte("Added pool successfully\n"))
 }
 
-func (service *UserRequestService) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+func (service UserRequestService) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid request method", http.StatusBadRequest)
 		fmt.Printf("healthCheckHandler error: Invalid request method\n")

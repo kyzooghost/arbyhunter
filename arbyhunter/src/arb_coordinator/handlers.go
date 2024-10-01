@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func (service *ArbCoordinator) LaunchNodeAdaptor(ctx context.Context, dto dtos.LaunchNodeAdaptorDTO) models.UserResponse {
+func (service ArbCoordinator) LaunchNodeAdaptor(ctx context.Context, dto dtos.LaunchNodeAdaptorDTO) models.UserResponse {
 	fmt.Printf("LaunchNodeAdaptor started\n")
 	switch nodeAdaptorType := dto.NodeAdaptorType; nodeAdaptorType {
 	case enums.EVM:
@@ -49,7 +49,7 @@ func (service *ArbCoordinator) LaunchNodeAdaptor(ctx context.Context, dto dtos.L
 	}
 }
 
-func (service *ArbCoordinator) AddPool(ctx context.Context, dto dtos.AddPoolDTO) models.UserResponse {
+func (service ArbCoordinator) AddPool(ctx context.Context, dto dtos.AddPoolDTO) models.UserResponse {
 	fmt.Printf("AddPool started\n")
 	nodeAdaptor, exists := service.nodeAdaptors[dto.NodeAdaptorType]
 	if !exists {
@@ -72,7 +72,7 @@ func (service *ArbCoordinator) AddPool(ctx context.Context, dto dtos.AddPoolDTO)
 }
 
 // Send 'hello' string to the ArbyScanner server
-func (service *ArbCoordinator) HealthCheck(ctx context.Context) models.UserResponse {
+func (service ArbCoordinator) HealthCheck(ctx context.Context) models.UserResponse {
 	fmt.Println("HealthCheck started\n")
 
 	socket, err := service.connectToArbScanner(ctx)
@@ -84,12 +84,12 @@ func (service *ArbCoordinator) HealthCheck(ctx context.Context) models.UserRespo
 			Data:    nil,
 		}
 	}
-	defer (*socket).Close()
+	defer socket.Close()
 
 	// Send msg
 	msg := zmq.NewMsgString("hello")
 	fmt.Println("Sending message to ArbScanner server: ", msg)
-	if err := (*socket).Send(msg); err != nil {
+	if err := socket.Send(msg); err != nil {
 		fmt.Println("arb_coordinator.HealthCheck - failed send message to ArbScanner server: %w", err)
 		return models.UserResponse{
 			Code:    500,
@@ -99,7 +99,7 @@ func (service *ArbCoordinator) HealthCheck(ctx context.Context) models.UserRespo
 	}
 
 	// Wait for reply.
-	r, err := (*socket).Recv()
+	r, err := socket.Recv()
 	if err != nil {
 		fmt.Println("arb_coordinator.HealthCheck - failed receive message from ArbScanner server: %w", err)
 		return models.UserResponse{
@@ -119,7 +119,7 @@ func (service *ArbCoordinator) HealthCheck(ctx context.Context) models.UserRespo
 }
 
 // Return unique Socket instance, rather than reuse single Socket instance as we are advised 'do not use the same socket from multiple threads'
-func (service *ArbCoordinator) connectToArbScanner(ctx context.Context) (*zmq.Socket, error) {
+func (service ArbCoordinator) connectToArbScanner(ctx context.Context) (zmq.Socket, error) {
 	socket := zmq.NewReq(ctx, zmq.WithDialerRetry(time.Second))
 	ipcEndpoint := os.Getenv("ARB_SCANNER_IPC_ENDPOINT")
 	fmt.Printf("Connecting to ArbScanner server at %s\n", ipcEndpoint)
@@ -128,5 +128,5 @@ func (service *ArbCoordinator) connectToArbScanner(ctx context.Context) (*zmq.So
 		return nil, err
 	}
 	fmt.Println("Successfully connected to ArbScanner server")
-	return &socket, nil
+	return socket, nil
 }

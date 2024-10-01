@@ -16,7 +16,7 @@ type UserRequestService struct {
 	arbCoordinator interfaces.IArbCoordinator
 }
 
-func NewUserRequestService(arb_coordinator interfaces.IArbCoordinator) *UserRequestService {
+func NewUserRequestService(arb_coordinator interfaces.IArbCoordinator) UserRequestService {
 	// Start the server on port 8080
 	port := os.Getenv("API_SERVER_PORT")
 
@@ -24,7 +24,7 @@ func NewUserRequestService(arb_coordinator interfaces.IArbCoordinator) *UserRequ
 		Addr: ":" + port,
 	}
 
-	service := &UserRequestService{
+	service := UserRequestService{
 		server:         server,
 		arbCoordinator: arb_coordinator,
 	}
@@ -50,7 +50,7 @@ func NewUserRequestService(arb_coordinator interfaces.IArbCoordinator) *UserRequ
 	return service
 }
 
-func CleanUpUserRequestService(service *UserRequestService) {
+func CleanUpUserRequestService(service UserRequestService) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if err := service.server.Shutdown(ctx); err != nil {
